@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KAEYL | SYSTEM ARCHIVES v2026">
+    <title>KAEYL.SPACE // KINETIC SYSTEM</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+</head>
+<body class="bg-[#030303] text-[#e0e0e0] overflow-x-hidden selection:bg-[#ccff00] selection:text-black loading">
+
+    <canvas id="particle-canvas" class="fixed inset-0 z-0 pointer-events-none opacity-40"></canvas>
+    <div class="scanlines fixed inset-0 z-[100] pointer-events-none opacity-20"></div>
+    <div class="noise-overlay fixed inset-0 z-[150] pointer-events-none opacity-[0.05]"></div>
+    <div class="vignette fixed inset-0 z-[140] pointer-events-none"></div>
+
+    <div class="fixed top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-[#ccff00] z-[900] pointer-events-none"></div>
+    <div class="fixed top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-[#ccff00] z-[900] pointer-events-none"></div>
+    <div class="fixed bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-[#ccff00] z-[900] pointer-events-none"></div>
+    <div class="fixed bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-[#ccff00] z-[900] pointer-events-none"></div>
+
+    <div id="cursor-core" class="fixed w-2 h-2 bg-[#ccff00] z-[9999] pointer-events-none rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="cursor-trail fixed w-8 h-8 border border-[#ccff00]/50 z-[9998] pointer-events-none rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="cursor-trail fixed w-12 h-12 border border-[#ccff00]/20 z-[9997] pointer-events-none rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="cursor-trail fixed w-16 h-16 border border-[#ccff00]/5 z-[9996] pointer-events-none rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+
+    <div id="loader" class="fixed inset-0 z-[5000] bg-[#030303] flex flex-col justify-center px-10 md:px-20 font-mono">
+        <div class="max-w-3xl w-full mx-auto">
+            <div class="flex justify-between text-xs text-[#ccff00] mb-2 uppercase tracking-widest border-b border-[#ccff00]/20 pb-2">
+                <span>SYSTEM_BOOT // KAEYL.SPACE</span>
+                <span id="loader-status" class="glitch-text" data-text="INITIALIZING...">INITIALIZING...</span>
+            </div>
+            <div class="text-[10px] text-gray-500 space-y-1 mb-8" id="boot-logs">
+                <p>> Loading kernel parameters...</p>
+                <p>> Mounting logic cores...</p>
+                <p>> Establishing visual grid...</p>
+            </div>
+            <div class="w-full h-[1px] bg-white/10 relative">
+                <div id="loader-fill" class="absolute inset-0 bg-[#ccff00] scale-x-0 origin-left"></div>
+            </div>
+            <div class="mt-4 flex justify-between items-end">
+                <span class="text-[10px] text-gray-600">ENCRYPTION: SECURE</span>
+                <div id="loader-perc" class="text-6xl font-black text-white italic tracking-tighter">000</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-[500] px-8 py-6 flex justify-between items-center mix-blend-difference border-b border-white/5 bg-[#030303]/50 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+            <div class="w-3 h-3 bg-[#ccff00] animate-pulse"></div>
+            <a href="#" class="text-lg font-black tracking-tighter uppercase hover:text-[#ccff00] transition-colors">KAEYL_SYS</a>
+        </div>
+        <button id="menu-trigger" class="flex flex-col gap-2 w-8 cursor-pointer group p-2">
+            <div class="w-full h-[2px] bg-white group-hover:bg-[#ccff00] transition-colors line-1"></div>
+            <div class="w-3/4 h-[2px] bg-white group-hover:bg-[#ccff00] transition-colors line-2 self-end"></div>
+        </button>
+    </nav>
+
+    <div id="menu-overlay" class="fixed inset-0 z-[450] bg-[#030303]/95 backdrop-blur-xl translate-y-full flex flex-col justify-center items-center">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center opacity-5 pointer-events-none">
+            <h2 class="text-[20vw] font-black italic tracking-tighter">DIRECTORY</h2>
+        </div>
+        <ul class="space-y-6 text-center z-10">
+            <li class="overflow-hidden"><a href="#hero" class="m-link text-6xl md:text-8xl font-black italic tracking-tighter uppercase block text-transparent stroke-text hover:text-[#ccff00] transition-colors">00. HOME</a></li>
+            <li class="overflow-hidden"><a href="#lore" class="m-link text-6xl md:text-8xl font-black italic tracking-tighter uppercase block text-transparent stroke-text hover:text-[#ccff00] transition-colors">01. ABOUT ME</a></li>
+            <li class="overflow-hidden"><a href="#simulations" class="m-link text-6xl md:text-8xl font-black italic tracking-tighter uppercase block text-transparent stroke-text hover:text-[#ccff00] transition-colors">02. HOBBIES</a></li>
+            <li class="overflow-hidden"><a href="#music" class="m-link text-6xl md:text-8xl font-black italic tracking-tighter uppercase block text-transparent stroke-text hover:text-[#ccff00] transition-colors">03. MUSIC</a></li>
+            <li class="overflow-hidden"><a href="#series" class="m-link text-6xl md:text-8xl font-black italic tracking-tighter uppercase block text-transparent stroke-text hover:text-[#ccff00] transition-colors">04. SERIES</a></li>
+        </ul>
+        <div class="absolute bottom-10 w-full text-center text-[10px] text-gray-500 uppercase tracking-[0.5em] font-mono">
+            Node: Global // Network: Active
+        </div>
+    </div>
+
+    <main id="main-content" class="relative z-10 pt-24">
+        
+        <section id="hero" class="min-h-[90vh] flex flex-col items-center justify-center relative overflow-hidden px-4">
+            <div class="absolute inset-0 flex flex-col justify-between py-10 opacity-[0.03] pointer-events-none select-none z-0">
+                <div class="marquee-fast text-[10vw] font-black whitespace-nowrap leading-none tracking-tighter">KAEYL KAEYL KAEYL</div>
+                <div class="marquee-slow text-[10vw] font-black whitespace-nowrap leading-none tracking-tighter">ARCHIVES ARCHIVES ARCHIVES ARCHIVES</div>
+            </div>
+
+            <div class="z-10 text-center relative w-full max-w-7xl mx-auto">
+                <div class="relative inline-block mb-4 overflow-hidden hero-reveal">
+                    <h1 class="text-[14vw] md:text-[12vw] leading-[0.85] font-black uppercase italic tracking-tighter text-white relative z-10 glitch-hover" data-text="KAEYL">KAEYL</h1>
+                </div>
+                <br>
+                <div class="relative inline-block overflow-hidden hero-reveal">
+                    <h1 class="text-[14vw] md:text-[12vw] leading-[0.85] font-black uppercase italic tracking-tighter text-transparent stroke-text relative z-10 glitch-hover" data-text="ARCHIVES.">ARCHIVES.</h1>
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 w-full px-10 flex flex-col md:flex-row justify-between items-end z-10 gap-6 font-mono text-[10px] uppercase tracking-widest text-gray-400">
+                <div class="max-w-xs hero-reveal p-4 border border-white/10 bg-black/50 backdrop-blur-md">
+                    <div class="text-[#ccff00] mb-2">> USER_DATA_STREAM</div>
+                    A VISUAL EXPLORATION OF PASSIONS, ASPIRATIONS, AND THE STORIES THAT SHAPE MY WORLD.
+                </div>
+                <div class="hero-reveal flex items-center gap-3 bg-black/50 backdrop-blur-md p-4 border border-white/10">
+                    <div class="w-2 h-2 bg-[#ccff00] rounded-full animate-pulse shadow-[0_0_10px_#ccff00]"></div>
+                    <span>SYS_OP: OPTIMAL</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full bg-[#ccff00] text-black py-3 overflow-hidden border-y border-white/10 rotate-1 scale-105 z-20 relative">
+            <div class="marquee-text flex gap-10 whitespace-nowrap text-xs font-black uppercase tracking-[0.3em]">
+                <span>CREATIVE ASPIRATIONS</span> <span>•</span>
+                <span>STRATEGIC GAMING</span> <span>•</span>
+                <span>AUDIO FREQUENCIES</span> <span>•</span>
+                <span>NARRATIVE MEDIA</span> <span>•</span>
+                <span>CREATIVE ASPIRATIONS</span> <span>•</span>
+                <span>STRATEGIC GAMING</span> <span>•</span>
+                <span>AUDIO FREQUENCIES</span> <span>•</span>
+                <span>NARRATIVE MEDIA</span> <span>•</span>
+            </div>
+        </div>
+
+        <section id="lore" class="py-32 px-6 md:px-12 relative border-b border-white/10">
+            <div class="max-w-7xl mx-auto grid md:grid-cols-12 gap-12 items-center">
+                
+                <div class="md:col-span-3 font-mono text-xs text-gray-500 uppercase tracking-widest leading-loose border-l border-[#ccff00]/30 pl-6 scroll-fade hidden lg:block">
+                    <span class="text-[#ccff00] block mb-4">> INITIALIZE: PROFILE_LORE</span>
+                    Subject Designation: Kaeyl.<br>
+                    Current Hub: Global Explorer.<br>
+                    Primary Directive: Documenting passions, dreams, and experiences.
+                </div>
+
+                <div class="md:col-span-4 scroll-fade">
+                    <div class="relative w-full aspect-[3/4] md:aspect-square lg:aspect-[3/4] border border-[#ccff00]/30 p-2 bg-black/50 group cursor-none overflow-hidden">
+                        <div class="absolute inset-0 z-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnPjxyZWN0IHdpZHRoPSc0JyBoZWlnaHQ9JzQnIGZpbGw9JyNmZmYnIGZpbGwtb3BhY2l0eT0nMC4wNScvPjwvc3ZnPg==')] opacity-50 pointer-events-none"></div>
+                        
+                        <img src="me.JPEG" 
+                             class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                             alt="Kaeyl Profile">
+                        <div class="absolute bottom-4 left-4 bg-[#ccff00] text-black text-[10px] font-bold px-3 py-1 font-mono z-20">SYS_ADMIN</div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-5 scroll-fade flex flex-col justify-center">
+                    <h2 class="text-4xl md:text-6xl font-black uppercase italic tracking-tighter mb-6 leading-tight">Chasing dreams and <span class="text-[#ccff00]">creative expressions.</span></h2>
+                    <p class="text-gray-400 text-lg leading-relaxed max-w-2xl mb-8">
+                        I am driven by a deep fascination with creative design and immersive experiences. My goals transcend traditional boundaries, focusing on the things that bring life meaning.
+                    </p>
+                    <button class="modal-trigger text-[#ccff00] font-mono text-sm border-b border-[#ccff00]/50 pb-2 hover:text-white transition-colors w-fit" data-topic="about">
+                        > ACCESS FULL ASPIRATIONS
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulations" class="py-32 px-6 md:px-12 relative border-b border-white/10 bg-[#050505]">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20 scroll-fade">
+                    <h2 class="text-[8vw] leading-none font-black italic tracking-tighter uppercase mb-4 text-transparent stroke-text">HOBBIES</h2>
+                    <p class="font-mono text-xs text-[#ccff00] uppercase tracking-[0.4em]">Tactics // Kinetics</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <div class="border border-white/10 rounded-xl overflow-hidden relative group scroll-card modal-trigger bg-black cursor-none" data-topic="tft">
+                        <div class="absolute inset-0 z-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnPjxyZWN0IHdpZHRoPSc0JyBoZWlnaHQ9JzQnIGZpbGw9JyNmZmYnIGZpbGwtb3BhY2l0eT0nMC4wNScvPjwvc3ZnPg==')] opacity-50"></div>
+                        <div class="h-[40vh] overflow-hidden relative">
+
+                            <img src="tftimage.jpg" 
+                                 class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" 
+                                 alt="Hobby 1">
+                            <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-transparent"></div>
+                            <div class="absolute top-6 left-6 font-mono text-[10px] text-[#ccff00] uppercase tracking-widest z-20">Sim_01 : Digital Strategy</div>
+                        </div>
+                        <div class="p-8 relative z-20 border-t border-white/10 bg-black">
+                            <h3 class="text-4xl font-black italic tracking-tighter uppercase mb-2">Teamfight Tactics</h3>
+                            <p class="text-gray-500 font-mono text-xs">Algorithmic probability & economy management.</p>
+                            <div class="absolute bottom-8 right-8 text-[#ccff00] opacity-0 group-hover:opacity-100 transition-opacity font-mono text-xs">> ACCESS</div>
+                        </div>
+                    </div>
+
+                    <div class="border border-white/10 rounded-xl overflow-hidden relative group scroll-card modal-trigger bg-black cursor-none" data-topic="baseball">
+                        <div class="absolute inset-0 z-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnPjxyZWN0IHdpZHRoPSc0JyBoZWlnaHQ9JzQnIGZpbGw9JyNmZmYnIGZpbGwtb3BhY2l0eT0nMC4wNScvPjwvc3ZnPg==')] opacity-50"></div>
+                        <div class="h-[40vh] overflow-hidden relative">
+
+                            <img src="ohtani.jpg" 
+                                 class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100" 
+                                 alt="Hobby 2">
+                            <div class="absolute inset-0 bg-gradient-to-b from-black/80 to-transparent"></div>
+                            <div class="absolute top-6 left-6 font-mono text-[10px] text-[#ccff00] uppercase tracking-widest z-20">Sim_02 : Physical Kinetics</div>
+                        </div>
+                        <div class="p-8 relative z-20 border-t border-white/10 bg-black">
+                            <h3 class="text-4xl font-black italic tracking-tighter uppercase mb-2">Baseball</h3>
+                            <p class="text-gray-500 font-mono text-xs">Diamond statistics & physiological execution.</p>
+                            <div class="absolute bottom-8 right-8 text-[#ccff00] opacity-0 group-hover:opacity-100 transition-opacity font-mono text-xs">> ACCESS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="music" class="py-32 px-6 md:px-12 relative border-b border-white/10">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16">
+                
+                <div class="md:w-1/2 scroll-fade order-2 md:order-1">
+                    <span class="font-mono text-xs text-[#ccff00] uppercase tracking-widest block mb-4">> 03. AUDIO_PROFILE</span>
+                    <h2 class="text-6xl md:text-8xl font-black uppercase italic tracking-tighter mb-4">WANTCHU.</h2>
+                    <p class="text-xl text-white font-light mb-8">by keshi</p>
+                    
+                    <p class="text-gray-400 text-lg leading-relaxed mb-8 max-w-md font-mono">
+                        The lo-fi R&B aesthetic anchors my workflow. This track defines the atmospheric state required for deep focus, keeping me isolated from distractions.
+                    </p>
+                    <button class="modal-trigger border border-[#ccff00]/30 px-8 py-4 text-xs font-bold uppercase tracking-widest text-[#ccff00] hover:bg-[#ccff00] hover:text-black transition-colors w-fit font-mono" data-topic="music">
+                        [ ANALYZE_FREQUENCY ]
+                    </button>
+                </div>
+
+                <div class="md:w-1/2 scroll-fade order-1 md:order-2 w-full flex justify-center">
+                    <div class="w-64 h-64 md:w-96 md:h-96 rounded-full border border-[#ccff00]/30 relative overflow-hidden spin-continuous modal-trigger cursor-pointer group" data-topic="music">
+                        
+                        <img src="wantchuu.jpg" 
+                             class="w-full h-full object-cover scale-110 opacity-70 group-hover:opacity-100 transition-opacity" 
+                             alt="Favorite Music">
+                        <div class="absolute inset-0 border-[30px] md:border-[40px] border-[#030303] rounded-full pointer-events-none"></div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 backdrop-blur-sm rounded-full">
+                            <span class="text-[10px] font-bold font-mono uppercase tracking-widest text-[#ccff00]">PLAY</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="series" class="py-32 px-6 md:px-12 relative border-b border-white/10 bg-[#050505]">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20 scroll-fade">
+                    <h2 class="text-[8vw] leading-none font-black italic tracking-tighter uppercase mb-4 text-transparent stroke-text hover:text-[#ccff00] transition-colors">FAVORITE SERIES</h2>
+                    <p class="font-mono text-xs text-[#ccff00] uppercase tracking-[0.4em]">Narrative // Media</p>
+                </div>
+
+                <div class="border border-white/10 rounded-xl overflow-hidden relative group scroll-card modal-trigger bg-black cursor-none w-full h-[60vh] flex flex-col justify-end" data-topic="series">
+                    <div class="absolute inset-0 z-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnPjxyZWN0IHdpZHRoPSc0JyBoZWlnaHQ9JzQnIGZpbGw9JyNmZmYnIGZpbGwtb3BhY2l0eT0nMC4wNScvPjwvc3ZnPg==')] opacity-50"></div>
+                    
+                    <img src="https://cdn-images.dzcdn.net/images/cover/c5356d6d4a9ab89845c45b7a7ce78ac9/0x1900-000000-80-0-0.jpg" 
+                         class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100" 
+                         alt="Favorite Show">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent z-10"></div>
+                    <div class="absolute top-6 left-6 font-mono text-[10px] text-[#ccff00] uppercase tracking-widest z-20">Sim_04 : Narrative Media</div>
+                    
+                    <div class="relative z-20 p-8 md:p-16">
+                        <h3 class="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">Twinkling<br>Watermelon.</h3>
+                        <p class="text-gray-400 font-mono text-sm md:text-base max-w-2xl">A masterclass in time-travel chronology & youth expression.</p>
+                        <div class="absolute bottom-10 right-10 text-[#ccff00] opacity-0 group-hover:opacity-100 transition-opacity font-mono text-xs">> DECRYPT_NARRATIVE</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer id="connect" class="py-20 px-6 border-t border-[#ccff00]/20 bg-[#030303] relative z-20 font-mono">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16 scroll-fade">
+                    <p class="text-[#ccff00] text-xs mb-4">> INITIATE CONNECTION PROTOCOL</p>
+                    <a href="mailto:hello@kaeyl.space" class="text-6xl md:text-8xl font-black tracking-tighter uppercase italic hover:text-transparent hover:stroke-text transition-all duration-300">CONNECT()</a>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6 text-[10px] text-gray-500 uppercase tracking-widest border-t border-white/10 pt-10">
+                    <div>
+                        <p>SYSTEM OP: KAEYL</p>
+                        <p>HUB: CREATIVE STUDIO</p>
+                    </div>
+                    <div class="md:text-center">
+                        <p>NODE_CREATIVE: ACTIVE</p>
+                        <p>NODE_EXPLORE: ACTIVE</p>
+                    </div>
+                    <div class="md:text-right text-[#ccff00]">
+                        <p>STATUS: ONLINE</p>
+                        <p>COPYRIGHT_2026</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <div id="modal-wrap" class="fixed inset-0 z-[6000] pointer-events-none flex items-center justify-center p-4 md:p-10">
+        <div id="modal-dim" class="absolute inset-0 bg-black/95 backdrop-blur-md opacity-0"></div>
+        <div id="modal-box" class="relative w-full max-w-4xl max-h-[85vh] bg-[#050505] border border-[#ccff00]/30 p-8 md:p-12 overflow-y-auto translate-y-20 opacity-0 font-mono shadow-[0_0_50px_rgba(204,255,0,0.05)]">
+            
+            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#ccff00]"></div>
+            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#ccff00]"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#ccff00]"></div>
+            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#ccff00]"></div>
+
+            <button id="modal-exit" class="absolute top-6 right-6 z-50 text-[10px] text-[#ccff00] hover:text-black hover:bg-[#ccff00] px-4 py-2 border border-[#ccff00]/30 transition-colors uppercase tracking-widest cursor-none">
+                [ TERMINATE ]
+            </button>
+            <div id="modal-inject" class="pt-8">
+                </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
